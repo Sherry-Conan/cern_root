@@ -56,7 +56,7 @@ public:
             tree->GetEntry(j); 
             Branch_ctof->Fill(ctof); 
         }
-        Branch_ctof->Fit("f1", "R"); 
+        Branch_ctof->Fit("f1", "RN"); 
         to_one = f1->GetParameter(1); 
         std::cout<<to_one<<std::endl; 
         for(Long64_t j = 0; j<entry_NUM; j++){
