@@ -161,4 +161,17 @@ void homework_1_2(){
     std::cout<<"tdoff-tuoff = "<<f3->GetParameter(1)<<std::endl; 
     std::cout<<"Lambda = "<<1/(qf3->GetParameter(0))<<std::endl; 
     std::cout<<"1/Vcs = "<<(f3->GetParameter(0))<<std::endl; 
+    
+    TCanvas *fit1 = new TCanvas("fit1", "fit1", 1000, 500); 
+    fit1->Divide(2,1); 
+    fit1->cd(1); 
+    dtd->Draw();
+    f1->Draw("same"); 
+    f2->Draw("same"); 
+    dtd->SetTitle("dt/dx; m, NUMBER"); 
+    fit1->cd(2); 
+    dqd->Draw(); 
+    qf1->Draw("same"); 
+    qf2->Draw("same");     
+    fit1->Draw();
 }
