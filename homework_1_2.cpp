@@ -41,13 +41,26 @@ public:
         NUM = dtd->GetEntries(); 
         for(Long64_t j = 0; j<NUM; j++){
             tx = dtd->GetBinContent(j); 
-            if(tx>tx_max) {tx_max = tx; tx_max_NUM = j; }
-            if(tx<tx_min) {tx_min = tx; tx_min_NUM = j; }}
+            if(tx>tx_max) {
+                tx_max = tx; 
+                tx_max_NUM = j; 
+             }
+            if(tx<tx_min) {
+                tx_min = tx; 
+                tx_min_NUM = j; 
+            }
+        }
         NUM = dqd->GetEntries(); 
         for(Long64_t j = 0; j < NUM; j++){
             qx = dqd->GetBinContent(j); 
-            if(qx > qx_max) {qx_max = qx; qx_max_NUM = j; }
-            if(qx < qx_min) {qx_min = qx; qx_min_NUM = j; }
+            if(qx > qx_max) {
+                qx_max = qx; 
+                qx_max_NUM = j; 
+            }
+            if(qx < qx_min) {
+                qx_min = qx; 
+                qx_min_NUM = j; 
+            }
         }
     }
     void Gause_max(TH1D *dtd, TF1 *f1, TH1D *dqd, TF1 *qf1){
@@ -64,6 +77,7 @@ public:
             NUM += dtd->GetBinContent(tx_min_NUM+j)+dtd->GetBinContent(tx_min_NUM-j); 
         }
         tx = tx/NUM; 
+        
         tx_std = (dtd->GetBinContent(tx_min_NUM))*pow((dtd->GetBinCenter(tx_min_NUM)-tx), 2); 
         for(Long64_t j = 1; j < 6; j++){
             tx_std += (dtd->GetBinContent(tx_min_NUM+j))*pow((dtd->GetBinCenter(tx_min_NUM+j)-tx), 2); 
@@ -84,6 +98,7 @@ public:
         }
         qx = qx/NUM; 
         qx_std = (dqd->GetBinContent(qx_min_NUM))*pow((dqd->GetBinCenter(qx_min_NUM)-qx), 2); 
+        
         for(Long64_t j = 1; j<6; j++){
             qx_std += (dqd->GetBinContent(qx_min_NUM+j))*pow((dqd->GetBinCenter(qx_min_NUM+j)-qx), 2); 
             qx_std += (dqd->GetBinContent(qx_min_NUM-j))*pow((dqd->GetBinCenter(qx_min_NUM-j)-qx), 2); 
@@ -103,14 +118,18 @@ void homework_1_2(){
     std::cout << "Error opening file" << std::endl; 
     exit(-1); 
     }
+    
     tree_data->cd(); 
     TTree *tree = (TTree*)tree_data->Get("tree"); //得到名字为“tree”的TTree指针
+    
     read_root rr; 
     rr.OLD_Branch(tree); 
+    
     Long64_t entries_NUM = tree->GetEntries(); 
     TH1D *tdiff = new TH1D("tdiff", "td-tu", 140, -20, 50);  
     TH1D *qdiff = new TH1D("qdiff", "qu/qd", 70, -0.8, 0.8); 
     for(Long64_t j = 0; j < entries_NUM; j++) rr.coculate(j, tree, tdiff, qdiff); 
+    
     Long64_t bins_NUM = tdiff->GetNbinsX(); 
     TH1D *dtd = new TH1D("dtd", "dt/dx", 141, -20, 50); 
     TH1D *dqd = new TH1D("dqd", "dq/dx", 71, -0.8, 0.8); 
@@ -121,15 +140,18 @@ void homework_1_2(){
         df = qdiff->GetBinContent(i+1)-qdiff->GetBinContent(i); 
         dqd->Fill(qdiff->GetBinLowEdge(i+1), df); 
     }
+    
     TCanvas *c1 = new TCanvas("c1", "c1"); 
     Make_Gause MG; 
     MG.coculate(dtd, dqd); 
     TF1 *f1  =  new TF1("f1", "gaus", dtd->GetBinCenter(MG.tx_max_NUM-5), dtd->GetBinCenter(MG.tx_max_NUM+5)); 
     TF1 *qf1  =  new TF1("qf1", "gaus", dqd->GetBinCenter(MG.qx_max_NUM-5), dqd->GetBinCenter(MG.qx_max_NUM+5)); 
+    
     MG.Gause_max(dtd, f1, dqd, qf1); 
     TF1 *f2  =  new TF1("f2", "[0]*TMath::Exp(-0.5*((x-[1])/[2])^2)", dtd->GetBinCenter(MG.tx_min_NUM-3), dtd->GetBinCenter(MG.tx_min_NUM+3)); 
     TF1 *qf2  =  new TF1("qf2", "[0]*TMath::Exp(-0.5*((x-[1])/[2])^2)", dqd->GetBinCenter(MG.qx_min_NUM-3), dtd->GetBinCenter(MG.qx_min_NUM+2)); 
     MG.Gause_min(dtd, f2, dqd, qf2); 
+    
     dtd->Fit("f2", "R", "same"); 
     dqd->Fit("qf2", "R", "same"); 
     double mean_min  =  f1->GetParameter(1); 
@@ -169,6 +191,7 @@ void homework_1_2(){
     f1->Draw("same"); 
     f2->Draw("same"); 
     dtd->SetTitle("dt/dx; m, NUMBER"); 
+    
     fit1->cd(2); 
     dqd->Draw(); 
     qf1->Draw("same"); 
